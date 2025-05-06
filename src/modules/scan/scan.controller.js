@@ -30,36 +30,74 @@ const scanProductImage = catchError(async (req, res, next) => {
 export { scanProductImage };
 
 
-/* ******************************** API WITH AI ******************************** */
 
+// // scan.controller.js
+// import axios from 'axios';
 // import { AppError } from "../../utils/appError.js";
 // import { catchError } from "../../middleware/catchError.js";
 
 // const scanProductImage = catchError(async (req, res, next) => {
-//   // Ensure that the image has been uploaded
 //   if (!req.file) {
 //     return next(new AppError('No image uploaded', 400));
 //   }
 
-//   const imagePath = req.file.path; // Path of the image on the server
+//   const imagePath = req.file.path;
+//   const disease = req.body.disease;
 
-//   // Simulate AI server response
-//   const aiResponse = {
-//     data: {
-//       suitable: false,  // This can be changed to false to test other cases
-//       message: "The product is not suitable for your condition."
+//   if (!disease || !["diabetes", "heart", "pressure", "anemia"].includes(disease)) {
+//     return next(new AppError('Invalid disease specified', 400));
+//   }
+
+//   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/analyze', {
+//     imagePath,
+//   });
+
+//   const { extracted_text, bad_for, nutrient_percentages } = aiResponse.data;
+
+//   const isSuitable = !bad_for.includes(disease);
+//   const message = isSuitable
+//     ? "This product is suitable for your condition."
+//     : `This product is not suitable for your condition: ${disease}.`;
+
+//   const rawNutrition = nutrient_percentages[disease] || {};
+//   const nutritionInfo = {};
+//   for (const key in rawNutrition) {
+//     nutritionInfo[key] = `${rawNutrition[key].toFixed(2)}%`;
+//   }
+
+//   console.log({
+//     success: true,
+//     productAnalysis: {
+//       summary: {
+//         disease,
+//         isSuitable,
+//         message,
+//       },
+//       nutritionInfo,
+//       details: {
+//         extractedText: extracted_text,
+//         badFor: bad_for,
+//       }
 //     }
-//   };
+//   });
+  
 
-//   // Receive the response from the simulated AI
-//   const { suitable, message } = aiResponse.data;
-
-//   // Send the result to the user
 //   res.status(200).json({
-//     // success: true,
-//     suitable,
-//     message,
+//     success: true,
+//     productAnalysis: {
+//       summary: {
+//         disease,
+//         isSuitable,
+//         message,
+//       },
+//       nutritionInfo,
+//       details: {
+//         extractedText: extracted_text,
+//         badFor: bad_for,
+//       }
+//     }
 //   });
 // });
 
-// export { scanProductImage };
+
+// export default scanProductImage;  // تصدير الدالة لاستخدامها في أماكن أخرى

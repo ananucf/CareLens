@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { uploadSingleFile } from '../../fileUpload/fileUpload.js';
-import { scanProductImage } from './scan.controller.js';
 import { verifyToken } from "../../middleware/verifyToken.js";
+import { scanProductImage } from './scan.controller.js';
 
 
 const scanRouter = Router();

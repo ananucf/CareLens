@@ -1,0 +1,206 @@
+// # api AI
+// scan code(OCR) -- api 
+// # 4 models -- 4 apis
+
+// # Deployment
+// database --> atlas
+// code --> evenNode / railway
+
+// productHistory --> details
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ************************************************************* */
+
+/* appHistory.model.js */
+// import mongoose from "mongoose";
+// const schema = new mongoose.Schema({
+//   userId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "User",
+//     required: true,
+//   },
+//   diseaseType: {
+//     type: String,
+//     enum: ["anemia", "pressure", "heart", "diabetes"],
+//     required: true,
+//   },
+//   answers: {
+//     type: mongoose.Schema.Types.Mixed,
+//     required: true,
+//   },
+// }, { timestamps: true, versionKey: false });
+// export const AppHistory = mongoose.model("AppHistory", schema);
+
+
+/* appHistory.controller.js */
+// import { AppHistory } from "../../../database/models/appHistory.model.js";
+// import { catchError } from "../../middleware/catchError.js";
+// import { AppError } from "../../utils/appError.js";
+// // add to history for the first time
+// const createAppHistory = catchError(async (req, res, next) => {
+//   const { userId, diseaseType, answers } = req.body;
+//   const existing = await AppHistory.findOne({ userId });
+//   if (existing) {
+//     if (!res.headersSent) {
+//       return next(new AppError("You already submitted your health history.", 400));
+//     }
+//   }
+//   const newEntry = new AppHistory({ userId, diseaseType, answers });
+//   await newEntry.save();
+//   if (!res.headersSent) {
+//     res.status(201).json({ message: "History saved successfully.", data: newEntry });
+//   }
+// });
+// // get the history
+// const getUserAppHistory = catchError(async (req, res, next) => {
+//   const userId = req.params.userId;
+//   const history = await AppHistory.findOne({ userId });
+//   if (!history) {
+//     if (!res.headersSent) {
+//       return next(new AppError("No history found for this user.", 404));
+//     }
+//   }
+//   if (!res.headersSent) {
+//     res.status(200).json({ message: "Success", data: history });
+//   }
+// });
+// // update the history
+// const updateAppHistory = catchError(async (req, res, next) => {
+//   const userId = req.params.userId;
+//   const { answers } = req.body;
+//   const updated = await AppHistory.findOneAndUpdate(
+//     { userId },
+//     { answers, updatedAt: new Date() },
+//     { new: true, runValidators: true }
+//   );
+//   if (!updated) {
+//     if (!res.headersSent) {
+//       return next(new AppError("No history to update for this user.", 404));
+//     }
+//   }
+//   if (!res.headersSent) {
+//     res.status(200).json({ message: "History updated successfully.", data: updated });
+//   }
+// });
+// export {
+//   createAppHistory,
+//   getUserAppHistory,
+//   updateAppHistory
+// };
+
+
+// appHistory.routes.js
+// import { Router } from "express";
+// import { createAppHistory, getUserAppHistory, updateAppHistory } from "./appHistory.controller.js";
+// import { catchError } from "../../middleware/catchError.js";
+// const appHistoryRouter = Router();
+// appHistoryRouter.post("/", catchError(createAppHistory));
+// appHistoryRouter
+//     .route('/:userId')
+//     .get(catchError(getUserAppHistory))
+//     .put(catchError(updateAppHistory))
+// export default appHistoryRouter;
+
+/* ************************************************************* */
+
+// /* statistics.model.js */
+// // database/models/statistics.model.js
+// import mongoose from "mongoose";
+// const statisticsSchema = new mongoose.Schema({
+//   userId: {
+//     type: mongoose.Schema.Types.ObjectId,
+//     ref: "User",
+//     required: true,
+//   },
+//   diseaseType: {
+//     type: String,
+//     required: true,
+//   },
+//   answers: {
+//     type: [mongoose.Schema.Types.Mixed], // array of any structure
+//     required: true,
+//   },
+//   submittedAt: {
+//     type: Date,
+//     default: Date.now,
+//   },
+// });
+// export const Statistics = mongoose.model("Statistics", statisticsSchema);
+
+
+// // statistics.controller.js
+// import { Statistics } from "../../../database/models/statistics.model.js";
+// import { catchError } from "../../middleware/catchError.js";
+// import { AppError } from "../../utils/appError.js";
+// // Add new entry
+// const addStatisticsEntry = catchError(async (req, res, next) => {
+//   const { userId, diseaseType, answers } = req.body;
+//   if (!userId || !diseaseType || !answers) {
+//     return next(new AppError("Missing required fields", 400));
+//   }
+//   const newEntry = new Statistics({ userId, diseaseType, answers });
+//   await newEntry.save();
+//   res.status(201).json({
+//     message: "Entry saved successfully.",
+//     data: newEntry,
+//   });
+// });
+// // Get all statistics for a user
+// const getUserStatistics = catchError(async (req, res, next) => {
+//   const { userId } = req.params;
+//   const history = await Statistics.find({ userId }).sort({ submittedAt: 1 });
+//   if (!history || history.length === 0) {
+//     return next(new AppError("No statistics found for this user", 404));
+//   }
+//   res.status(200).json({
+//     message: "Success",
+//     data: history,
+//   });
+// });
+// export {
+//   addStatisticsEntry,
+//   getUserStatistics,
+// };
+
+
+// // statistics.routes.js
+// import { Router } from "express";
+// import { addStatisticsEntry, getUserStatistics } from "./statistics.controller.js";
+// const statisticsRouter = Router();
+// statisticsRouter.post("/", addStatisticsEntry); 
+// statisticsRouter.get("/:userId", getUserStatistics); 
+// export default statisticsRouter;
