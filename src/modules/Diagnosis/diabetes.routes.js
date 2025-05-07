@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { catchError } from "../../middleware/catchError.js";
-import { createDiabetes, getDiabetes, updateDiabetes } from "./diabetes.controller.js";
 import { verifyToken } from "../../middleware/verifyToken.js";
+import { createDiabetes, getDiabetes, updateDiabetes } from "./diabetes.controller.js";
 
 const diabetesRouter = Router();
 

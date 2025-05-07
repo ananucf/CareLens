@@ -1,4 +1,4 @@
-import { Diabetes } from "../../../database/models/DiagnosisModels/diabetesDiagnosis.model.js";
+import { Diabetes } from "../../../database/models/StatisticsModels/diabetesStatistics.model.js";
 import { catchError } from "../../middleware/catchError.js";
 import { predictDiabetes } from "../../services/aiDiagnosis.service.js";
 import { AppError } from "../../utils/appError.js";
