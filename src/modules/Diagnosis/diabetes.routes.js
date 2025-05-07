@@ -5,7 +5,7 @@ import { createDiabetes, getDiabetes, updateDiabetes } from "./diabetes.controll
 
 const diabetesRouter = Router();
 
-diabetesRouter.post("/", catchError(verifyToken, createDiabetes));
+diabetesRouter.post("/", verifyToken, catchError(createDiabetes));
 
 diabetesRouter
   .route("/:patientId")
