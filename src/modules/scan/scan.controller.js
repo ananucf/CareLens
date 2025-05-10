@@ -257,10 +257,13 @@
 
 
 
+
 import axios from 'axios';
 import fs from 'fs';
-import FormData from 'form-data';
+import path from 'path';
+import os from 'os';
 import sharp from 'sharp';
+import FormData from 'form-data';
 import { AppError } from "../../utils/appError.js";
 import { catchError } from "../../middleware/catchError.js";
 
@@ -268,7 +271,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
   const { disease } = req.body;
 
   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-    return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
+    return next(new AppError('Invalid disease type', 400));
   }
 
   if (!req.file) {
@@ -276,13 +279,14 @@ export const scanProductImage = catchError(async (req, res, next) => {
   }
 
   try {
-    // Resize image to prevent AI service crashes
-    const resizedImage = await sharp(req.file.path)
-      .resize(500, 500)
-      .toBuffer();
+    // 🔥 Resize & optimize the image before sending
+    const optimizedImage = await sharp(req.file.path)
+      .resize(800, 800, { fit: 'inside' }) // Keeps aspect ratio
+      .jpeg({ quality: 80 }) // Reduce file size
+      .toBuffer(); // Convert to Buffer
 
     const form = new FormData();
-    form.append('file', resizedImage, { filename: 'resized.jpg' });
+    form.append('file', optimizedImage, { filename: 'optimized.jpg' });
     form.append('disease', disease);
 
     const aiResponse = await axios.post(
@@ -298,7 +302,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
     );
 
     if (!aiResponse.data || aiResponse.data.status === "error") {
-      return next(new AppError('AI service failed to process the request', 502));
+      return next(new AppError('AI processing failed', 502));
     }
 
     res.status(200).json({
@@ -309,10 +313,9 @@ export const scanProductImage = catchError(async (req, res, next) => {
 
   } catch (error) {
     console.error("AI Service Error:", error.message);
-    return next(new AppError('Failed to get response from AI service', 502));
+    return next(new AppError('AI service unreachable', 502));
   } finally {
-    // Delete the temp file
-    fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
+    fs.unlink(req.file.path, (err) => err && console.error("Cleanup error:", err));
   }
 });
 
