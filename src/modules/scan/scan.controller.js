@@ -284,19 +284,26 @@ import { catchError } from "../../middleware/catchError.js";
 export const scanProductImage = catchError(async (req, res, next) => {
   const { disease } = req.body;
 
+  // لو مفيش صورة ولا مرض، رجّع رسالة بسيطة
+  if (!req.file && !disease) {
+    return res.status(200).json({
+      success: false,
+      message: 'No image or disease provided. Please submit at least one.',
+    });
+  }
+
   try {
     const form = new FormData();
 
-    // Handle image if provided
+    // لو فيه صورة، حوّلها لـ buffer بعد التحجيم
     if (req.file) {
       const resizedImage = await sharp(req.file.path)
         .resize(500, 500)
         .toBuffer();
-
       form.append('file', resizedImage, { filename: 'resized.jpg' });
     }
 
-    // Handle disease if provided
+    // لو فيه مرض، اتأكد من صحته وضيفه
     if (disease) {
       if (!["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
         return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
@@ -304,36 +311,18 @@ export const scanProductImage = catchError(async (req, res, next) => {
       form.append('disease', disease);
     }
 
-    // If neither image nor disease provided, just respond politely
-    if (!req.file && !disease) {
-      return res.status(200).json({
-        success: false,
-        message: 'No image or disease provided. Please submit at least one to perform a scan.',
-      });
-    }
-
+    // إرسال البيانات للـ AI
     const aiResponse = await axios.post(
       'https://3laasayed-ocr.hf.space/analyze',
       form,
       {
-        headers: {
-          ...form.getHeaders(),
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: form.getHeaders(),
         timeout: 30000,
       }
     );
 
-    if (!aiResponse.data || aiResponse.data.status === "error") {
-      return next(new AppError('AI service failed to process the request', 502));
-    }
-
-    res.status(200).json({
-      success: true,
-      message,
-      // result: aiResponse.data.result,
-      // values: aiResponse.data.values,
-    });
+    // رجّع رد الـ AI زي ما هو للمستخدم
+    return res.status(200).json(aiResponse.data);
 
   } catch (error) {
     console.error("AI Service Error:", error.message);
@@ -344,6 +333,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
     }
   }
 });
+
 
 
 
