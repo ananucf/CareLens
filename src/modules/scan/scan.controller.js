@@ -102,7 +102,7 @@ const scanProductImage = catchError(async (req, res, next) => {
   }
 
   const form = new FormData();
-  form.append('file', fs.createReadStream(req.file.path)); // "file" هنا مهم يكون نفس الاسم المتوقع من السيرفر الخارجي
+  form.append('file', fs.createReadStream(req.file.path));
   form.append('disease', disease);
 
   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', form, {
@@ -111,16 +111,18 @@ const scanProductImage = catchError(async (req, res, next) => {
     }
   });
 
-  const { suitable, message } = aiResponse.data;
+  // نرجّع البيانات كاملة زي ما جت من الـ AI
+  const { result, values } = aiResponse.data;
 
   res.status(200).json({
     success: true,
-    suitable,
-    message
+    result,
+    values
   });
 });
 
 export { scanProductImage };
+
 
 
 
