@@ -186,77 +186,6 @@
 
 
 
-// import axios from 'axios';
-// import fs from 'fs';
-// import path from 'path';
-// import os from 'os';
-// import sharp from 'sharp';
-// import FormData from 'form-data';
-// import { AppError } from "../../utils/appError.js";
-// import { catchError } from "../../middleware/catchError.js";
-
-// export const scanProductImage = catchError(async (req, res, next) => {
-//   const { disease } = req.body;
-
-//   // ✅ تحقق من نوع المرض
-//   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-//     return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
-//   }
-
-//   // ✅ تحقق من وجود صورة
-//   if (!req.file) {
-//     return next(new AppError('No image uploaded', 400));
-//   }
-
-//   const originalPath = req.file.path;
-//   const compressedPath = path.join(os.tmpdir(), `compressed-${Date.now()}.jpeg`);
-
-//   try {
-//     // ✅ ضغط الصورة باستخدام sharp
-//     await sharp(originalPath)
-//       .resize({ width: 800 })               // تغيير العرض فقط (يحافظ على النسبة)
-//       .jpeg({ quality: 70 })                // ضغط الجودة إلى 70%
-//       .toFile(compressedPath);              // حفظ الصورة المضغوطة مؤقتًا
-
-//     // ✅ تجهيز البيانات للإرسال
-//     const form = new FormData();
-//     form.append('file', fs.createReadStream(compressedPath));
-//     form.append('disease', disease);
-
-//     // ✅ إرسال إلى API
-//     const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', form, {
-//       headers: {
-//         ...form.getHeaders()
-//       },
-//       timeout: 30000 // 30 ثانية
-//     });
-
-//     // ✅ التحقق من استجابة الـ AI
-//     if (!aiResponse.data || aiResponse.data.status === "error") {
-//       return next(new AppError('AI service failed to process the request', 502));
-//     }
-
-//     // ✅ الرد على المستخدم
-//     res.status(200).json({
-//       success: true,
-//       result: aiResponse.data.result,
-//       values: aiResponse.data.values
-//     });
-
-//   } catch (error) {
-//     console.error("AI Service Error:", error.message);
-//     return next(new AppError('Failed to get response from AI service', 502));
-//   } finally {
-//     // 🧹 حذف الملفات المؤقتة
-//     fs.unlink(originalPath, () => {});
-//     fs.unlink(compressedPath, () => {});
-//   }
-// });
-
-
-
-
-
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
@@ -315,6 +244,11 @@ export const scanProductImage = catchError(async (req, res, next) => {
     fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
   }
 });
+
+
+
+
+
 
 
 
