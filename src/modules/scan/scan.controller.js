@@ -287,7 +287,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
     }
 
     const aiResponse = await axios.post(
-      'https://3laasayed-ocr.hf.space/predict',
+      'https://3laasayed-ocr.hf.space/analyze',
       form,
       {
         headers: {
