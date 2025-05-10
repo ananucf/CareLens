@@ -84,6 +84,55 @@
 
 
 
+// import axios from 'axios';
+// import fs from 'fs';
+// import FormData from 'form-data';
+// import { AppError } from "../../utils/appError.js";
+// import { catchError } from "../../middleware/catchError.js";
+
+// const scanProductImage = catchError(async (req, res, next) => {
+//   const { disease } = req.body;
+
+//   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
+//     return next(new AppError('Please provide a valid disease type: diabetes, pressure, anemia, heart', 400));
+//   }
+
+//   if (!req.file) {
+//     return next(new AppError('No image uploaded', 400));
+//   }
+
+//   const form = new FormData();
+//   form.append('file', fs.createReadStream(req.file.path));
+//   form.append('disease', disease);
+
+//   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', form, {
+//     headers: {
+//       ...form.getHeaders()
+//     }
+//   });
+
+//   // نرجّع البيانات كاملة زي ما جت من الـ AI
+//   const { result, values } = aiResponse.data;
+
+//   res.status(200).json({
+//     success: true,
+//     result,
+//     values
+//   });
+// });
+
+// export { scanProductImage };
+
+
+
+
+
+
+
+
+
+
+
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
@@ -101,39 +150,65 @@ const scanProductImage = catchError(async (req, res, next) => {
     return next(new AppError('No image uploaded', 400));
   }
 
-  const form = new FormData();
-  form.append('file', fs.createReadStream(req.file.path));
-  form.append('disease', disease);
+  try {
+    const form = new FormData();
+    form.append('file', fs.createReadStream(req.file.path));
+    form.append('disease', disease);
 
-  const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', form, {
-    headers: {
-      ...form.getHeaders()
+    console.log('Sending request to AI service with:', {
+      disease,
+      file: req.file.originalname
+    });
+
+    const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', form, {
+      headers: {
+        ...form.getHeaders(),
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    console.log('AI Service Response:', aiResponse.data);
+
+    if (!aiResponse.data) {
+      return next(new AppError('No response data from AI service', 500));
     }
-  });
 
-  // نرجّع البيانات كاملة زي ما جت من الـ AI
-  const { result, values } = aiResponse.data;
+    // Check if the response has the expected structure
+    if (!aiResponse.data.result || !aiResponse.data.values) {
+      console.warn('Unexpected response structure:', aiResponse.data);
+      // You might want to handle this case differently
+      return res.status(200).json({
+        success: true,
+        rawResponse: aiResponse.data // Forward the raw response for debugging
+      });
+    }
 
-  res.status(200).json({
-    success: true,
-    result,
-    values
-  });
+    const { result, values } = aiResponse.data;
+
+    res.status(200).json({
+      success: true,
+      result,
+      values
+    });
+
+  } catch (error) {
+    console.error('Error calling AI service:', error);
+    if (error.response) {
+      console.error('AI service responded with error:', error.response.data);
+      return next(new AppError(`AI service error: ${error.response.data.message || error.response.statusText}`, error.response.status));
+    }
+    return next(new AppError('Error communicating with AI service', 500));
+  } finally {
+    // Clean up the uploaded file
+    if (req.file) {
+      fs.unlink(req.file.path, err => {
+        if (err) console.error('Error deleting temp file:', err);
+      });
+    }
+  }
 });
 
 export { scanProductImage };
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
