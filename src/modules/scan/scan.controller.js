@@ -214,8 +214,8 @@ export const scanProductImage = catchError(async (req, res, next) => {
   try {
     // ✅ ضغط الصورة باستخدام sharp
     await sharp(originalPath)
-      .resize({ width: 800 })               // تغيير العرض فقط (يحافظ على النسبة)
-      .jpeg({ quality: 70 })                // ضغط الجودة إلى 70%
+      .resize({ width: 600 })               // تغيير العرض فقط (يحافظ على النسبة)
+      .jpeg({ quality: 20 })                // ضغط الجودة إلى 70%
       .toFile(compressedPath);              // حفظ الصورة المضغوطة مؤقتًا
 
     // ✅ تجهيز البيانات للإرسال
