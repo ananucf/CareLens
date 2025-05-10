@@ -330,8 +330,9 @@ export const scanProductImage = catchError(async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      result: aiResponse.data.result,
-      values: aiResponse.data.values,
+      message,
+      // result: aiResponse.data.result,
+      // values: aiResponse.data.values,
     });
 
   } catch (error) {
