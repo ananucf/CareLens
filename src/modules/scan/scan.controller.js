@@ -186,6 +186,68 @@
 
 
 
+// import axios from 'axios';
+// import fs from 'fs';
+// import FormData from 'form-data';
+// import sharp from 'sharp';
+// import { AppError } from "../../utils/appError.js";
+// import { catchError } from "../../middleware/catchError.js";
+
+// export const scanProductImage = catchError(async (req, res, next) => {
+//   const { disease } = req.body;
+
+//   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
+//     return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
+//   }
+
+//   if (!req.file) {
+//     return next(new AppError('No image uploaded', 400));
+//   }
+
+//   try {
+//     // Resize image to prevent AI service crashes
+//     const resizedImage = await sharp(req.file.path)
+//       .resize(500, 500)
+//       .toBuffer();
+
+//     const form = new FormData();
+//     form.append('file', resizedImage, { filename: 'resized.jpg' });
+//     form.append('disease', disease);
+
+//     const aiResponse = await axios.post(
+//       'https://3laasayed-ocr.hf.space/predict',
+//       form,
+//       {
+//         headers: {
+//           ...form.getHeaders(),
+//           'Content-Type': 'multipart/form-data',
+//         },
+//         timeout: 30000, // 30s timeout
+//       }
+//     );
+
+//     if (!aiResponse.data || aiResponse.data.status === "error") {
+//       return next(new AppError('AI service failed to process the request', 502));
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       result: aiResponse.data.result,
+//       values: aiResponse.data.values,
+//     });
+
+//   } catch (error) {
+//     console.error("AI Service Error:", error.message);
+//     return next(new AppError('Failed to get response from AI service', 502));
+//   } finally {
+//     // Delete the temp file
+//     fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
+//   }
+// });
+
+
+
+
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
@@ -196,23 +258,33 @@ import { catchError } from "../../middleware/catchError.js";
 export const scanProductImage = catchError(async (req, res, next) => {
   const { disease } = req.body;
 
-  if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-    return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
-  }
-
-  if (!req.file) {
-    return next(new AppError('No image uploaded', 400));
-  }
-
   try {
-    // Resize image to prevent AI service crashes
-    const resizedImage = await sharp(req.file.path)
-      .resize(500, 500)
-      .toBuffer();
-
     const form = new FormData();
-    form.append('file', resizedImage, { filename: 'resized.jpg' });
-    form.append('disease', disease);
+
+    // Handle image if provided
+    if (req.file) {
+      const resizedImage = await sharp(req.file.path)
+        .resize(500, 500)
+        .toBuffer();
+
+      form.append('file', resizedImage, { filename: 'resized.jpg' });
+    }
+
+    // Handle disease if provided
+    if (disease) {
+      if (!["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
+        return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
+      }
+      form.append('disease', disease);
+    }
+
+    // If neither image nor disease provided, just respond politely
+    if (!req.file && !disease) {
+      return res.status(200).json({
+        success: false,
+        message: 'No image or disease provided. Please submit at least one to perform a scan.',
+      });
+    }
 
     const aiResponse = await axios.post(
       'https://3laasayed-ocr.hf.space/predict',
@@ -222,7 +294,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
           ...form.getHeaders(),
           'Content-Type': 'multipart/form-data',
         },
-        timeout: 30000, // 30s timeout
+        timeout: 30000,
       }
     );
 
@@ -240,16 +312,11 @@ export const scanProductImage = catchError(async (req, res, next) => {
     console.error("AI Service Error:", error.message);
     return next(new AppError('Failed to get response from AI service', 502));
   } finally {
-    // Delete the temp file
-    fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
+    }
   }
 });
-
-
-
-
-
-
 
 
 
