@@ -130,20 +130,17 @@
 
 
 
-
-
-
 import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
 import { AppError } from "../../utils/appError.js";
 import { catchError } from "../../middleware/catchError.js";
 
-const scanProductImage = catchError(async (req, res, next) => {
+export const scanProductImage = catchError(async (req, res, next) => {
   const { disease } = req.body;
 
   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-    return next(new AppError('Please provide a valid disease type: diabetes, pressure, anemia, heart', 400));
+    return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
   }
 
   if (!req.file) {
@@ -152,64 +149,35 @@ const scanProductImage = catchError(async (req, res, next) => {
 
   try {
     const form = new FormData();
-    form.append('file', fs.createReadStream(req.file.path));
+    form.append('file', fs.createReadStream(req.file.path)); // or 'image'
     form.append('disease', disease);
-
-    console.log('Sending request to AI service with:', {
-      disease,
-      file: req.file.originalname
-    });
 
     const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', form, {
       headers: {
         ...form.getHeaders(),
         'Content-Type': 'multipart/form-data'
-      }
+      },
+      timeout: 30000 // 30s timeout
     });
 
-    console.log('AI Service Response:', aiResponse.data);
-
-    if (!aiResponse.data) {
-      return next(new AppError('No response data from AI service', 500));
+    if (!aiResponse.data || aiResponse.data.status === "error") {
+      return next(new AppError('AI service failed to process the request', 502));
     }
-
-    // Check if the response has the expected structure
-    if (!aiResponse.data.result || !aiResponse.data.values) {
-      console.warn('Unexpected response structure:', aiResponse.data);
-      // You might want to handle this case differently
-      return res.status(200).json({
-        success: true,
-        rawResponse: aiResponse.data // Forward the raw response for debugging
-      });
-    }
-
-    const { result, values } = aiResponse.data;
 
     res.status(200).json({
       success: true,
-      result,
-      values
+      result: aiResponse.data.result,
+      values: aiResponse.data.values
     });
 
   } catch (error) {
-    console.error('Error calling AI service:', error);
-    if (error.response) {
-      console.error('AI service responded with error:', error.response.data);
-      return next(new AppError(`AI service error: ${error.response.data.message || error.response.statusText}`, error.response.status));
-    }
-    return next(new AppError('Error communicating with AI service', 500));
+    console.error("AI Service Error:", error.message);
+    return next(new AppError('Failed to get response from AI service', 502));
   } finally {
-    // Clean up the uploaded file
-    if (req.file) {
-      fs.unlink(req.file.path, err => {
-        if (err) console.error('Error deleting temp file:', err);
-      });
-    }
+    // Delete the temp file
+    fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
   }
 });
-
-export { scanProductImage };
-
 
 
 
