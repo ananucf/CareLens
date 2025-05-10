@@ -31,44 +31,70 @@
 
 // ************************************************************************************
 
-// import axios from 'axios';
-// import { AppError } from "../../utils/appError.js";
-// import { catchError } from "../../middleware/catchError.js";
+import axios from 'axios';
+import fs from 'fs';
+import FormData from 'form-data';
+import { AppError } from "../../utils/appError.js";
+import { catchError } from "../../middleware/catchError.js";
 
-// // دالة لتحليل الصورة باستخدام AI
-// const scanProductImage = catchError(async (req, res, next) => {
-//   const { disease } = req.body; // استلام نوع المرض من جسم الطلب
+const scanProductImage = catchError(async (req, res, next) => {
+  const { disease } = req.body;
 
-//   // التأكد من أن المرض تم إدخاله
-//   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-//     return next(new AppError('Please provide a valid disease type: diabetes, pressure, anemia, heart', 400));
-//   }
+  // لو لا صورة ولا مرض اتبعتوا، رجّع رسالة بسيطة
+  if (!req.file && !disease) {
+    return res.status(200).json({
+      success: false,
+      message: 'Please provide at least an image or disease type to analyze.',
+    });
+  }
 
-//   // التأكد من أن الصورة تم رفعها
-//   if (!req.file) {
-//     return next(new AppError('No image uploaded', 400));
-//   }
+  // تحضير البيانات للإرسال
+  const form = new FormData();
 
-//   const imagePath = req.file.path; // مسار الصورة على السيرفر
+  // لو فيه صورة، ضيفها بعد التحجيم (اختياري حسب الحاجة)
+  if (req.file) {
+    form.append('image', fs.createReadStream(req.file.path)); // حسب متطلبات API
+  }
 
-//   // إرسال الصورة ونوع المرض لسيرفر AI للتحليل
-//   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', {
-//     imagePath,
-//     disease, // إرسال نوع المرض
-//   });
+  // لو فيه مرض، تأكد من صلاحيته
+  if (disease) {
+    if (!["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
+      return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
+    }
+    form.append('disease', disease);
+  }
 
-//   // استلام النتيجة من AI (مناسب أو غير مناسب)
-//   const { suitable, message } = aiResponse.data;
+  try {
+    const aiResponse = await axios.post(
+      'https://3laasayed-ocr.hf.space/analyze', // تأكدي من URL حسب شغلك
+      form,
+      {
+        headers: form.getHeaders(),
+        timeout: 30000,
+      }
+    );
 
-//   // إرسال النتيجة للمستخدم فورًا
-//   res.status(200).json({ 
-//     success: true,
-//     suitable,
-//     message, // مثل: "هذا المنتج غير مناسب لمرضى السكري"
-//   });
-// });
+    const { suitable, message } = aiResponse.data;
 
-// export { scanProductImage };
+    res.status(200).json({
+      success: true,
+      suitable,
+      message,
+    });
+
+  } catch (error) {
+    console.error("AI Service Error:", error.message);
+    return next(new AppError('Failed to get response from AI service', 502));
+  } finally {
+    // حذف الصورة بعد الاستخدام
+    if (req.file) {
+      fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
+    }
+  }
+});
+
+export { scanProductImage };
+
 
 
 
@@ -248,7 +274,7 @@
 
 
 
-import axios from 'axios';
+/* import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
 import sharp from 'sharp';
@@ -317,7 +343,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
     }
   }
 });
-
+ */
 
 
 
