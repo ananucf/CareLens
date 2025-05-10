@@ -157,7 +157,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
         ...form.getHeaders(),
         'Content-Type': 'multipart/form-data'
       },
-      timeout: 30000 // 30s timeout
+      timeout: 60000 // 30s timeout
     });
 
     if (!aiResponse.data || aiResponse.data.status === "error") {
