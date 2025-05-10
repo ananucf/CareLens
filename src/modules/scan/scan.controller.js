@@ -1,9 +1,49 @@
+// import axios from 'axios';
+// import { AppError } from "../../utils/appError.js";
+// import { catchError } from "../../middleware/catchError.js";
+
+// // دالة لتحليل الصورة باستخدام AI
+// const scanProductImage = catchError(async (req, res, next) => {
+//   // التأكد من أن الصورة تم رفعها
+//   if (!req.file) {
+//     return next(new AppError('No image uploaded', 400));
+//   }
+
+//   const imagePath = req.file.path; // مسار الصورة على السيرفر
+
+//   // إرسال الصورة لسيرفر AI للتحليل
+//   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/analyze', {
+//     imagePath,
+//   });
+
+//   // استلام النتيجة من AI (مناسب أو غير مناسب)
+//   const { suitable, message } = aiResponse.data; //****** */
+
+//   // إرسال النتيجة للمستخدم فورًا
+//   res.status(200).json({ 
+//     success: true,
+//     suitable,
+//     message,  // message هتكون إما مناسب أو غير مناسب
+//   });
+// });
+
+// export { scanProductImage };
+
+// ************************************************************************************
+
 import axios from 'axios';
 import { AppError } from "../../utils/appError.js";
 import { catchError } from "../../middleware/catchError.js";
 
 // دالة لتحليل الصورة باستخدام AI
 const scanProductImage = catchError(async (req, res, next) => {
+  const { disease } = req.body; // استلام نوع المرض من جسم الطلب
+
+  // التأكد من أن المرض تم إدخاله
+  if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
+    return next(new AppError('Please provide a valid disease type: diabetes, pressure, anemia, heart', 400));
+  }
+
   // التأكد من أن الصورة تم رفعها
   if (!req.file) {
     return next(new AppError('No image uploaded', 400));
@@ -11,25 +51,27 @@ const scanProductImage = catchError(async (req, res, next) => {
 
   const imagePath = req.file.path; // مسار الصورة على السيرفر
 
-  // إرسال الصورة لسيرفر AI للتحليل
+  // إرسال الصورة ونوع المرض لسيرفر AI للتحليل
   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/analyze', {
     imagePath,
+    disease, // إرسال نوع المرض
   });
 
   // استلام النتيجة من AI (مناسب أو غير مناسب)
-  const { suitable, message } = aiResponse.data; //****** */
+  const { suitable, message } = aiResponse.data;
 
   // إرسال النتيجة للمستخدم فورًا
   res.status(200).json({ 
     success: true,
     suitable,
-    message,  // message هتكون إما مناسب أو غير مناسب
+    message, // مثل: "هذا المنتج غير مناسب لمرضى السكري"
   });
 });
 
 export { scanProductImage };
 
 
+// ************************************************************************************
 
 // // scan.controller.js
 // import axios from 'axios';

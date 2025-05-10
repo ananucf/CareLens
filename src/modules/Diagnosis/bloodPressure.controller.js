@@ -7,10 +7,10 @@ import { predictBloodPressure } from "../../services/aiDiagnosis.service.js"; //
 const createPressure = catchError(async (req, res, next) => {
   const { patientId, measurements } = req.body;
 
-  const existing = await BloodPressure.findOne({ patientId });
-  if (existing) {
-    return next(new AppError("Blood pressure record already exists for this patient.", 400));
-  }
+  // const existing = await BloodPressure.findOne({ patientId });
+  // if (existing) {
+  //   return next(new AppError("Blood pressure record already exists for this patient.", 400));
+  // }
  
   // استخدم AI prediction لتحديد إذا كانت القياسات تشير إلى مرض
   const diagnosisResult = await predictBloodPressure(measurements);

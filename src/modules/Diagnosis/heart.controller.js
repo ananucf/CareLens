@@ -7,10 +7,10 @@ import { AppError } from "../../utils/appError.js";
 const createHeart = catchError(async (req, res, next) => {
   const { patientId, measurements } = req.body;
 
-  const existing = await Heart.findOne({ patientId });
-  if (existing) {
-    return next(new AppError("Heart record already exists for this patient.", 400));
-  }
+  // const existing = await Heart.findOne({ patientId });
+  // if (existing) {
+  //   return next(new AppError("Heart record already exists for this patient.", 400));
+  // }
  
   // استخدم AI prediction لتحديد إذا كانت القياسات تشير إلى مرض
   const diagnosisResult = await predictHeart(measurements);
