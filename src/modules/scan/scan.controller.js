@@ -31,69 +31,69 @@
 
 // ************************************************************************************
 
-import axios from 'axios';
-import fs from 'fs';
-import FormData from 'form-data';
-import { AppError } from "../../utils/appError.js";
-import { catchError } from "../../middleware/catchError.js";
+// import axios from 'axios';
+// import fs from 'fs';
+// import FormData from 'form-data';
+// import { AppError } from "../../utils/appError.js";
+// import { catchError } from "../../middleware/catchError.js";
 
-const scanProductImage = catchError(async (req, res, next) => {
-  const { disease } = req.body;
+// const scanProductImage = catchError(async (req, res, next) => {
+//   const { disease } = req.body;
 
-  // لو لا صورة ولا مرض اتبعتوا، رجّع رسالة بسيطة
-  if (!req.file && !disease) {
-    return res.status(200).json({
-      success: false,
-      message: 'Please provide at least an image or disease type to analyze.',
-    });
-  }
+//   // لو لا صورة ولا مرض اتبعتوا، رجّع رسالة بسيطة
+//   if (!req.file && !disease) {
+//     return res.status(200).json({
+//       success: false,
+//       message: 'Please provide at least an image or disease type to analyze.',
+//     });
+//   }
 
-  // تحضير البيانات للإرسال
-  const form = new FormData();
+//   // تحضير البيانات للإرسال
+//   const form = new FormData();
 
-  // لو فيه صورة، ضيفها بعد التحجيم (اختياري حسب الحاجة)
-  if (req.file) {
-    form.append('image', fs.createReadStream(req.file.path)); // حسب متطلبات API
-  }
+//   // لو فيه صورة، ضيفها بعد التحجيم (اختياري حسب الحاجة)
+//   if (req.file) {
+//     form.append('image', fs.createReadStream(req.file.path)); // حسب متطلبات API
+//   }
 
-  // لو فيه مرض، تأكد من صلاحيته
-  if (disease) {
-    if (!["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-      return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
-    }
-    form.append('disease', disease);
-  }
+//   // لو فيه مرض، تأكد من صلاحيته
+//   if (disease) {
+//     if (!["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
+//       return next(new AppError('Invalid disease type. Must be: diabetes, pressure, anemia, heart', 400));
+//     }
+//     form.append('disease', disease);
+//   }
 
-  try {
-    const aiResponse = await axios.post(
-      'https://3laasayed-ocr.hf.space/analyze', // تأكدي من URL حسب شغلك
-      form,
-      {
-        headers: form.getHeaders(),
-        timeout: 30000,
-      }
-    );
+//   try {
+//     const aiResponse = await axios.post(
+//       'https://3laasayed-ocr.hf.space/analyze', // تأكدي من URL حسب شغلك
+//       form,
+//       {
+//         headers: form.getHeaders(),
+//         timeout: 30000,
+//       }
+//     );
 
-    const { suitable, message } = aiResponse.data;
+//     const { suitable, message } = aiResponse.data;
 
-    res.status(200).json({
-      success: true,
-      suitable,
-      message,
-    });
+//     res.status(200).json({
+//       success: true,
+//       suitable,
+//       message,
+//     });
 
-  } catch (error) {
-    console.error("AI Service Error:", error.message);
-    return next(new AppError('Failed to get response from AI service', 502));
-  } finally {
-    // حذف الصورة بعد الاستخدام
-    if (req.file) {
-      fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
-    }
-  }
-});
+//   } catch (error) {
+//     console.error("AI Service Error:", error.message);
+//     return next(new AppError('Failed to get response from AI service', 502));
+//   } finally {
+//     // حذف الصورة بعد الاستخدام
+//     if (req.file) {
+//       fs.unlink(req.file.path, (err) => err && console.error("Failed to delete temp file:", err));
+//     }
+//   }
+// });
 
-export { scanProductImage };
+// export { scanProductImage };
 
 
 
@@ -274,7 +274,7 @@ export { scanProductImage };
 
 
 
-/* import axios from 'axios';
+import axios from 'axios';
 import fs from 'fs';
 import FormData from 'form-data';
 import sharp from 'sharp';
@@ -343,7 +343,7 @@ export const scanProductImage = catchError(async (req, res, next) => {
     }
   }
 });
- */
+
 
 
 
