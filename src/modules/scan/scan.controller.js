@@ -281,8 +281,8 @@ export const scanProductImage = catchError(async (req, res, next) => {
   try {
     // 🔥 Resize & optimize the image before sending
     const optimizedImage = await sharp(req.file.path)
-      .resize(800, 800, { fit: 'inside' }) // Keeps aspect ratio
-      .jpeg({ quality: 80 }) // Reduce file size
+      .resize(600, 600, { fit: 'inside' }) // Keeps aspect ratio
+      .jpeg({ quality: 30 }) // Reduce file size
       .toBuffer(); // Convert to Buffer
 
     const form = new FormData();
