@@ -52,7 +52,7 @@ const scanProductImage = catchError(async (req, res, next) => {
   const imagePath = req.file.path; // مسار الصورة على السيرفر
 
   // إرسال الصورة ونوع المرض لسيرفر AI للتحليل
-  const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/analyze', {
+  const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', {
     imagePath,
     disease, // إرسال نوع المرض
   });
