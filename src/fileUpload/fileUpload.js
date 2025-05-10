@@ -92,7 +92,7 @@ const fileUpload = (folderName) => {
     storage,
     fileFilter,
     limits: {
-      fileSize: 200 * 1024 * 1024 // 5MB
+      fileSize: 20 * 1024 * 1024 // 5MB
     }
   });
 
