@@ -31,103 +31,44 @@
 
 // ************************************************************************************
 
-// import axios from 'axios';
-// import { AppError } from "../../utils/appError.js";
-// import { catchError } from "../../middleware/catchError.js";
-
-// // دالة لتحليل الصورة باستخدام AI
-// const scanProductImage = catchError(async (req, res, next) => {
-//   const { disease } = req.body; // استلام نوع المرض من جسم الطلب
-
-//   // التأكد من أن المرض تم إدخاله
-//   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
-//     return next(new AppError('Please provide a valid disease type: diabetes, pressure, anemia, heart', 400));
-//   }
-
-//   // التأكد من أن الصورة تم رفعها
-//   if (!req.file) {
-//     return next(new AppError('No image uploaded', 400));
-//   }
-
-//   const imagePath = req.file.path; // مسار الصورة على السيرفر
-
-//   // إرسال الصورة ونوع المرض لسيرفر AI للتحليل
-//   const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', {
-//     imagePath,
-//     disease, // إرسال نوع المرض
-//   });
-
-//   // استلام النتيجة من AI (مناسب أو غير مناسب)
-//   const { suitable, message } = aiResponse.data;
-
-//   // إرسال النتيجة للمستخدم فورًا
-//   res.status(200).json({ 
-//     success: true,
-//     suitable,
-//     message, // مثل: "هذا المنتج غير مناسب لمرضى السكري"
-//   });
-// });
-
-// export { scanProductImage };
-
-
-
-
-
-
-
-
-
-
-
 import axios from 'axios';
-import fs from 'fs';
-import FormData from 'form-data';
 import { AppError } from "../../utils/appError.js";
 import { catchError } from "../../middleware/catchError.js";
 
-// تحليل صورة باستخدام AI
+// دالة لتحليل الصورة باستخدام AI
 const scanProductImage = catchError(async (req, res, next) => {
-  const { disease } = req.body;
+  const { disease } = req.body; // استلام نوع المرض من جسم الطلب
 
+  // التأكد من أن المرض تم إدخاله
   if (!disease || !["diabetes", "pressure", "anemia", "heart"].includes(disease)) {
     return next(new AppError('Please provide a valid disease type: diabetes, pressure, anemia, heart', 400));
   }
 
+  // التأكد من أن الصورة تم رفعها
   if (!req.file) {
     return next(new AppError('No image uploaded', 400));
   }
 
-  const formData = new FormData();
-  formData.append('file', fs.createReadStream(req.file.path)); // الملف نفسه
-  formData.append('disease', disease); // نوع المرض كـ text
+  const imagePath = req.file.path; // مسار الصورة على السيرفر
 
-  const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', formData, {
-    headers: formData.getHeaders(),
+  // إرسال الصورة ونوع المرض لسيرفر AI للتحليل
+  const aiResponse = await axios.post('https://3laasayed-ocr.hf.space/predict', {
+    imagePath,
+    disease, // إرسال نوع المرض
   });
 
+  // استلام النتيجة من AI (مناسب أو غير مناسب)
   const { suitable, message } = aiResponse.data;
 
-  res.status(200).json({
+  // إرسال النتيجة للمستخدم فورًا
+  res.status(200).json({ 
     success: true,
     suitable,
-    message,
+    message, // مثل: "هذا المنتج غير مناسب لمرضى السكري"
   });
 });
 
 export { scanProductImage };
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // ************************************************************************************
