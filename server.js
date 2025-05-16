@@ -7,8 +7,7 @@ import { dbConn } from './database/dbConnection.js'
 import { bootstrap } from './src/modules/bootstrap.js'
 import { globalError } from './src/middleware/globalError.js'
 import { AppError } from './src/utils/appError.js'
-// import dotenv from "dotenv"
-// dotenv.config()
+
 import 'dotenv/config'
 const app = express()
 const port = process.env.PORT || 3002

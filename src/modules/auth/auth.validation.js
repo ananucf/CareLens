@@ -1,4 +1,3 @@
-// auth/auth.validation.js
 import Joi from 'joi';
 import { generalFields } from '../../middleware/validate.js';
 

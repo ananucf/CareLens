@@ -22,7 +22,7 @@ const schema = new mongoose.Schema({
       suitability: {
         type: String,
         enum: ['Good', 'Bad', 'Moderated'],
-        required: true  // بييجي من تحليل المكونات
+        required: true 
       }
 }, { timestamps: true, versionKey: false });
 

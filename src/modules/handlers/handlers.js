@@ -1,4 +1,3 @@
-/* handlers.js */
 import { catchError } from "../../middleware/catchError.js"
 import { AppError } from "../../utils/appError.js"
 

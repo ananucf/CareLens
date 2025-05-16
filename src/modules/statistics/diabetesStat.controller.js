@@ -2,7 +2,7 @@ import { Diabetes } from '../../../database/models/StatisticsModels/diabetesStat
 import { catchError } from '../../middleware/catchError.js';
 import { AppError } from '../../utils/appError.js';
 
-// ✅ Create New Diabetes Entry
+// Create New Diabetes Entry
 const createStatDiabetes = catchError(async (req, res, next) => {
   const { userId, exerciseHours, bloodSugarLevel, weight, height } = req.body;
 
@@ -27,7 +27,7 @@ const createStatDiabetes = catchError(async (req, res, next) => {
   });
 });
 
-// ✅ Get All Diabetes Entries for a User
+// Get All Diabetes Entries for a User
 const getAllStatDiabetes = catchError(async (req, res, next) => {
   const { userId } = req.params;
 
@@ -44,7 +44,7 @@ const getAllStatDiabetes = catchError(async (req, res, next) => {
   });
 });
 
-// ✅ Get Specific Diabetes Entry
+// Get Specific Diabetes Entry
 const getStatDiabetes = catchError(async (req, res, next) => {
   const { id } = req.params;
 
@@ -60,7 +60,7 @@ const getStatDiabetes = catchError(async (req, res, next) => {
   });
 });
 
-// ✅ Update Specific Diabetes Entry
+// Update Specific Diabetes Entry
 const updateStatDiabetes = catchError(async (req, res, next) => {
   const { id } = req.params;
 

@@ -1,4 +1,3 @@
-/* auth.routes.js */
 import express from "express";
 import { checkEmail } from "../../middleware/checkEmail.js";
 import { changeUserPassword, confirmEmail, logout, resendOTP, signin, signup } from "./auth.controller.js";

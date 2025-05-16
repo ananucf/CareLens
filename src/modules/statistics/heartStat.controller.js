@@ -2,7 +2,7 @@ import { HeartDisease } from '../../../database/models/StatisticsModels/heartSta
 import { catchError } from '../../middleware/catchError.js';
 import { AppError } from '../../utils/appError.js';
 
-// ✅ Create New Heart Disease Entry
+// Create New Heart Disease Entry
 const createStatHeart = catchError(async (req, res, next) => {
   const { userId, exerciseHours, heartRate, weight, height } = req.body;
 
@@ -27,7 +27,7 @@ const createStatHeart = catchError(async (req, res, next) => {
   });
 });
 
-// ✅ Get All Heart Disease Records for a Patient
+// Get All Heart Disease Records for a Patient
 const getAllStatHeart = catchError(async (req, res, next) => {
   const { userId } = req.params;
 
@@ -44,7 +44,7 @@ const getAllStatHeart = catchError(async (req, res, next) => {
   });
 });
 
-// ✅ Get Specific Heart Disease Record by ID
+// Get Specific Heart Disease Record by ID
 const getStatHeart = catchError(async (req, res, next) => {
   const { id } = req.params;
 
@@ -60,7 +60,7 @@ const getStatHeart = catchError(async (req, res, next) => {
   });
 });
 
-// ✅ Update Specific Heart Disease Record by ID
+// Update Specific Heart Disease Record by ID
 const updateStatHeart = catchError(async (req, res, next) => {
   const { id } = req.params;
 

@@ -1,7 +1,7 @@
 import { BloodPressure } from "../../../database/models/DiagnosisModels/bloodPressureDiagnosis.model.js";
 import { catchError } from "../../middleware/catchError.js";
 import { AppError } from "../../utils/appError.js";
-import { predictBloodPressure } from "../../services/aiDiagnosis.service.js"; // فرضًا أن aiPrediction.js يحتوي على منطق AI
+import { predictBloodPressure } from "../../services/aiDiagnosis.service.js"; 
 
 // Create Blood Pressure Record
 const createPressure = catchError(async (req, res, next) => {

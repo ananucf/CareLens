@@ -1,4 +1,3 @@
-/* auth.controller.js */
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import { catchError } from "../../middleware/catchError.js"
@@ -6,14 +5,6 @@ import { User } from "../../../database/models/user.model.js"
 import { AppError } from "../../utils/appError.js"
 import { customAlphabet } from "nanoid"
 import { sendEmails } from "../../email/email.js"
-
-/*
- * const response=axios("http://127.0.0.1/pred",{method:"POST",body:req.body})
- * const response=axios("http://127.0.0.1/pred",{method:"POST",body:req.body})
- * const response=axios("http://127.0.0.1/pred",{method:"POST",body:req.body})
- * const response=axios("http://127.0.0.1/pred",{method:"POST",body:req.body})
- * db 
- */
 
 
 const generateOTP = customAlphabet("0123456789", 5)
@@ -61,47 +52,6 @@ const signup = catchError(async (req, res) => {
 
     return res.status(200).json({ message: "User created successfully. Please confirm your email.", user });
 });
-
-// const signup = catchError(async (req, res) => {
-
-//     // let user = new User(req.body)
-//     // await user.save()
-//     // let token = jwt.sign({ userId: user._id, role: user.role }, "myNameIsAnan")
-//     // res.json({ message: "success", token })
-
-//     const { name,
-//         email,
-//         password,
-//         phone,
-//         age, } = req.body
-//     const otp = generateOTP();
-
-//     const resendOTPToken = jwt.sign({ email }, "resendOtp")
-
-//     await sendEmails({
-//         to: email,
-//         subject: "confirm your email",
-//         text: `<h1>your otp is ${otp}, this OTP valid for only 3 minutes</h1>
-//         <h3>if the otp expired click this <a href="http://localhost:3002/api/auth/resendOTP/${resendOTPToken}">link</a></h3>
-//         `
-//     })
-//     console.log(`${req.prortocol}://${req.headers.host}/auth/resendOTP/${resendOTPToken}`);
-
-
-//     const otpExpire = Date.now() + 3 * 60 * 1000
-
-//     const user = await User.create({
-//         name,
-//         email,
-//         password,
-//         phone,
-//         age,
-//         otpCode: otp,
-//         otpExpire
-//     })
-
-//     return res.status(200).json({ messge: "Done", user })
-// })
 
 const confirmEmail = catchError(async (req, res, next) => {
     const { email, otp } = req.body

@@ -1,24 +1,7 @@
-// import { AppError } from "../utils/appError.js";
-
-// export const validate = (schema) => {
-//     return (req, res, next) => {
-//         let { error } = schema.validate({ image: req.file, ...req.body, ...req.params, ...req.query }, { abortEarly: false })
-//         if (!error) {
-//             next()
-//         } else {
-//             let errMsgs = error.details.map(err => err.message);
-//             next(new AppError(errMsgs, 401))
-//         }
-//     }
-// } 
-
-
-
-// middleware/validate.js
 import Joi from 'joi';
 import { AppError } from '../utils/appError.js';
 
-// ----------- General Fields (الحقول العامة) ------------
+// ----------- General Fields ------------
 export const generalFields = {
     id: Joi.string().hex().length(24),  // MongoDB ObjectId
     name: Joi.string().min(2).max(50),
@@ -28,7 +11,7 @@ export const generalFields = {
     otp: Joi.string().pattern(/^\d{5}$/).required() // otp مكون من 5 أرقام
 };
 
-// ----------- Validation Middleware (الوظيفة نفسها) ------------
+// ----------- Validation Middleware ------------
 export const validation = (schema) => {
     return (req, res, next) => {
         const inputs = { body: req.body, params: req.params, query: req.query, headers: req.headers };

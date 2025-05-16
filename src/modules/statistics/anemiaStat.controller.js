@@ -3,7 +3,7 @@ import { Anemia } from "../../../database/models/StatisticsModels/anemiaStatisti
 import { catchError } from "../../middleware/catchError.js";
 import { AppError } from "../../utils/appError.js";
 
-// ✅ Create New Anemia Entry
+// Create New Anemia Entry
 const createStatAnemia = catchError(async (req, res, next) => {
   const {
     userId,
@@ -26,7 +26,7 @@ const createStatAnemia = catchError(async (req, res, next) => {
   res.status(201).json({ message: "Anemia record created.", data: record });
 });
 
-// ✅ Get All Anemia Records for a Patient
+// Get All Anemia Records for a Patient
 const getAllStatAnemia = catchError(async (req, res, next) => {
   const { userId } = req.params;
 
@@ -62,7 +62,7 @@ const getStatAnemia = catchError(async (req, res, next) => {
   res.status(200).json({ message: "Success", data: record });
 });
 
-// ✅ Update Specific Anemia Record by ID
+// Update Specific Anemia Record by ID
 const updateStatAnemia = catchError(async (req, res, next) => {
   const { recordId } = req.params;
   const {
